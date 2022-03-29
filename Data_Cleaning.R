@@ -13,10 +13,18 @@ df_orig <- read.csv(
   stringsAsFactors = T
 )
 
+# create column indicating whether co-applicant exist ---------------------
 
-# Check and remove duplicate rows ---------------------------------------------------------
+df_orig$co_applicant <-
+  as.factor(ifelse(df_orig$co_applicant_sex_name == 'No co-applicant',
+                   'no',
+                   'yes'))
+
+# Check and remove duplicate rows -----------------------------------------
 
 df_orig <- df_orig[which(!duplicated(df_orig)),]
+
+rownames(df_orig)=NULL
 
 # remove columns ----------------------------------------------------------
 remove <- c(
@@ -71,11 +79,21 @@ remove <- c(
   'edit_status_name',
   'edit_status',
   'sequence_number',
-  'application_date_indicator'
+  'application_date_indicator',
+  'property_type_name',
+  'co_applicant_ethnicity_name',
+  'co_applicant_race_name_1',
+  'co_applicant_sex_name',
+  'msamd_name',
+  'lien_status_name',
+  'owner_occupancy_name',
+  'hud_median_family_income',
+  'census_tract_number'
 )
 
 df_sub <- df_orig[,which(!names(df_orig) %in% remove)]
 
+rownames(df_sub)=NULL
 
 # Check missing values per column -----------------------------------------
 
@@ -92,8 +110,15 @@ View(dfColMiss)
 #variable with missing value proportion > 25%
 hi_miss_vari <- dfColMiss[which(dfColMiss$MissingPerc > 25),'Variables']
 
+#remove variables with hi missing value prop
 df_sub_2 <- df_sub[,which(!names(df_sub) %in% hi_miss_vari)]
+
+rownames(df_sub_2)=NULL
+
+#keep only complete rows
 df_sub_complete <- df_sub_2[which(complete.cases(df_sub_2)),]
+
+rownames(df_sub_complete)=NULL
 
 # Check outlier -----------------------------------------------------------
 
@@ -106,9 +131,27 @@ sum(pval < alpha) #5634 outliers
 
 df_sub_complete_noout <- df_sub_complete[which(pval >= alpha),]
 
+# looking at 'action_taken' -----------------------------------------------
 
+table(action_taken = df_sub_complete_noout$action_taken_name)
+
+  # remove 'Preapproval request denied by financial institution'
+
+df_sub_complete_noout <-
+  df_sub_complete_noout[which(
+    df_sub_complete_noout$action_taken_name !=
+      'Preapproval request denied by financial institution'
+  ),]
+# Check Cat variable ------------------------------------------------------
+#reset factor
+df_sub_complete_noout <- df_sub_complete_noout %>% 
+  mutate(across(where(is.factor), as.character)) %>%
+  mutate(across(where(is.character), as.factor))
+
+summary(df_sub_complete_noout)
 # Write cleaned data to csv -----------------------------------------------
 
-write.csv(df_sub_complete_noout,'hmda_2017_nevada_cleaned.csv')
+rownames(df_sub_complete_noout)=NULL
+write.csv(df_sub_complete_noout,'hmda_2017_nevada_cleaned.csv',row.names=F)
 
 
