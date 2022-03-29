@@ -1,5 +1,5 @@
 library(tidyverse)
-
+library(cluster)
 # import data -------------------------------------------------------------
 data_file <- 'hmda_2017_nv_all-records_labels.csv'
 
@@ -95,5 +95,20 @@ hi_miss_vari <- dfColMiss[which(dfColMiss$MissingPerc > 25),'Variables']
 df_sub_2 <- df_sub[,which(!names(df_sub) %in% hi_miss_vari)]
 df_sub_complete <- df_sub_2[which(complete.cases(df_sub_2)),]
 
-write.csv(df_sub_complete,'hmda_2017_nevada_cleaned.csv')
+# Check outlier -----------------------------------------------------------
+
+df_num <- df_sub_complete %>% select_if(is.numeric)
+
+mdist <- mahalanobis(df_num, colMeans(df_num), cov(df_num))
+pval <- pchisq(mdist, df=ncol(df_num)-1, lower.tail=FALSE)
+alpha <- 0.05
+sum(pval < alpha) #5634 outliers
+
+df_sub_complete_noout <- df_sub_complete[which(pval >= alpha),]
+
+
+# Write cleaned data to csv -----------------------------------------------
+
+write.csv(df_sub_complete_noout,'hmda_2017_nevada_cleaned.csv')
+
 
