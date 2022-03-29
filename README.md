@@ -6,7 +6,8 @@ The data set contains home loan information for the state of Nevada in 2017
 
 # Data Cleaning 
 
-**Data_Cleaning.R** contains the the data cleaning code
+### **Data_Cleaning.R** 
+contains the the data cleaning code
 
 use the original data for running this file
 
@@ -21,4 +22,5 @@ the script contains:
   - reseting the factors
 
 
-**hmda_2017_nevada_cleaned.csv** is the data set created after running **Data_Cleaning.R** 
+### **hmda_2017_nevada_cleaned.csv** 
+the data set created after running **Data_Cleaning.R** 
