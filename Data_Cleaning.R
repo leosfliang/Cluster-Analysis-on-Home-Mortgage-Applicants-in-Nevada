@@ -85,10 +85,12 @@ remove <- c(
   'co_applicant_race_name_1',
   'co_applicant_sex_name',
   'msamd_name',
-  'lien_status_name',
   'owner_occupancy_name',
   'hud_median_family_income',
-  'census_tract_number'
+  'census_tract_number',
+  'county_name',
+  'purchaser_type_name',
+  'agency_abbr'
 )
 
 df_sub <- df_orig[,which(!names(df_orig) %in% remove)]
@@ -135,13 +137,22 @@ df_sub_complete_noout <- df_sub_complete[which(pval >= alpha),]
 
 table(action_taken = df_sub_complete_noout$action_taken_name)
 
-  # remove 'Preapproval request denied by financial institution'
+df_sub_complete_noout$action_taken_name <- as.character(df_sub_complete_noout$action_taken_name)
 
-df_sub_complete_noout <-
-  df_sub_complete_noout[which(
-    df_sub_complete_noout$action_taken_name !=
-      'Preapproval request denied by financial institution'
-  ),]
+#changing action_taken to binary
+df_sub_complete_noout[which(
+  df_sub_complete_noout$action_taken_name == 'Application approved but not accepted' |
+    df_sub_complete_noout$action_taken_name == 'Loan originated'
+), ]$action_taken_name <- 1
+
+df_sub_complete_noout[which(
+  df_sub_complete_noout$action_taken_name == 'Application denied by financial institution' |
+    df_sub_complete_noout$action_taken_name == 'Preapproval request denied by financial institution' |
+    df_sub_complete_noout$action_taken_name == 'File closed for incompleteness' |
+    df_sub_complete_noout$action_taken_name == 'Application withdrawn by applicant'
+), ]$action_taken_name <- 0
+
+df_sub_complete_noout$action_taken_name <- as.factor(df_sub_complete_noout$action_taken_name)
 # Check Cat variable ------------------------------------------------------
 #reset factor
 df_sub_complete_noout <- df_sub_complete_noout %>% 
