@@ -4,7 +4,7 @@ original data set can be downloaded [HERE](https://files.consumerfinance.gov/hmd
 
 The data set contains home loan information for the state of Nevada in 2017
 
-# Data Cleaning 
+# R files
 
 ## **Data_Cleaning.R** 
   contains the the data cleaning code
@@ -22,8 +22,15 @@ The data set contains home loan information for the state of Nevada in 2017
     - reseting the factors
 
 
-## **hmda_2017_nevada_cleaned.csv** 
+### **hmda_2017_nevada_cleaned.csv** 
   the data set created after running **Data_Cleaning.R** 
   
-## **Cluster.R**
-  - outlier check
+## **function.R**
+  - contains necessary functions
+
+## **kmean.R**
+
+## **kmedoid.R**
+
+# Plots
+  -save plots in plots folder
