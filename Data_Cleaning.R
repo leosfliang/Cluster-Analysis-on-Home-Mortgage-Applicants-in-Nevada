@@ -124,45 +124,56 @@ rownames(df_sub_complete)=NULL
 
 # Check outlier -----------------------------------------------------------
 
-df_num <- df_sub_complete %>% select_if(is.numeric)
+#moved to Cluster.R
 
-mdist <- mahalanobis(df_num, colMeans(df_num), cov(df_num))
-pval <- pchisq(mdist, df=ncol(df_num)-1, lower.tail=FALSE)
-alpha <- 0.05
-sum(pval < alpha) #5634 outliers
-
-df_sub_complete_noout <- df_sub_complete[which(pval >= alpha),]
+# df_num <- df_sub_complete %>% select_if(is.numeric)
+# 
+# mdist <- mahalanobis(df_num, colMeans(df_num), cov(df_num))
+# pval <- pchisq(mdist, df=ncol(df_num)-1, lower.tail=FALSE)
+# alpha <- 0.05
+# sum(pval < alpha) #5634 outliers
+# 
+# df_sub_complete_noout <- df_sub_complete[which(pval >= alpha),]
 
 # looking at 'action_taken' -----------------------------------------------
 
-table(action_taken = df_sub_complete_noout$action_taken_name)
+table(action_taken = df_sub_complete$action_taken_name)
 
-df_sub_complete_noout$action_taken_name <- as.character(df_sub_complete_noout$action_taken_name)
+df_sub_complete$action_taken_name <- as.character(df_sub_complete$action_taken_name)
 
 #changing action_taken to binary
-df_sub_complete_noout[which(
-  df_sub_complete_noout$action_taken_name == 'Application approved but not accepted' |
-    df_sub_complete_noout$action_taken_name == 'Loan originated'
+df_sub_complete[which(
+  df_sub_complete$action_taken_name == 'Application approved but not accepted' |
+    df_sub_complete$action_taken_name == 'Loan originated'
 ), ]$action_taken_name <- 1
 
-df_sub_complete_noout[which(
-  df_sub_complete_noout$action_taken_name == 'Application denied by financial institution' |
-    df_sub_complete_noout$action_taken_name == 'Preapproval request denied by financial institution' |
-    df_sub_complete_noout$action_taken_name == 'File closed for incompleteness' |
-    df_sub_complete_noout$action_taken_name == 'Application withdrawn by applicant'
+df_sub_complete[which(
+  df_sub_complete$action_taken_name == 'Application denied by financial institution' |
+    df_sub_complete$action_taken_name == 'Preapproval request denied by financial institution' |
+    df_sub_complete$action_taken_name == 'File closed for incompleteness' |
+    df_sub_complete$action_taken_name == 'Application withdrawn by applicant'
 ), ]$action_taken_name <- 0
 
-df_sub_complete_noout$action_taken_name <- as.factor(df_sub_complete_noout$action_taken_name)
+df_sub_complete$action_taken_name <- as.factor(df_sub_complete$action_taken_name)
 # Check Cat variable ------------------------------------------------------
 #reset factor
-df_sub_complete_noout <- df_sub_complete_noout %>% 
+df_sub_complete <- df_sub_complete %>% 
   mutate(across(where(is.factor), as.character)) %>%
   mutate(across(where(is.character), as.factor))
 
-summary(df_sub_complete_noout)
+summary(df_sub_complete)
+
+# take a sample of the data -----------------------------------------------
+
+sample_size = 2000
+
+set.seed(1234)
+df_sample <- df_sub_complete[sample(1:nrow(df_clean),size = sample_size),]
+
+summary(df_sample)
 # Write cleaned data to csv -----------------------------------------------
 
-rownames(df_sub_complete_noout)=NULL
-write.csv(df_sub_complete_noout,'hmda_2017_nevada_cleaned.csv',row.names=F)
+rownames(df_sample)=NULL
+write.csv(df_sample,'hmda_2017_nevada_cleaned.csv',row.names=F)
 
 
