@@ -16,11 +16,14 @@ The data set contains home loan information for the state of Nevada in 2017
     - creating a binary variable indicating whether co-applicant exist
     - removing unwanted variables
     - Check missing values per column
-    - keeping only rows with no outliers
     - checking and removing numerical outliers
     - converting action_taken to binary
+    - Taking a sample of the data
     - reseting the factors
 
 
 ## **hmda_2017_nevada_cleaned.csv** 
   the data set created after running **Data_Cleaning.R** 
+  
+## **Cluster.R**
+  - outlier check
