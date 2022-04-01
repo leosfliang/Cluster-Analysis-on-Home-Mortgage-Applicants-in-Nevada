@@ -5,9 +5,16 @@ library(ggpubr)
 source('function.R')
 # import cleaned data -----------------------------------------------------
 
-df_sample <- read.csv('hmda_2017_nevada_cleaned.csv',stringsAsFactors = T)
-df_sample$action_taken_name <- as.factor(df_sample$action_taken_name)
+df_sample <- read.csv('hmda_2017_nevada_cleaned.csv')
 
+df_sample[which(
+  df_sample$property_type_name == 'One-to-four family dwelling (other than manufactured housing)'
+), ]$property_type_name <- 'One-to-four family dwelling'
+
+df_sample <- df_sample %>%
+  mutate(across(where(is.character), as.factor))
+
+df_sample$action_taken_name <- as.factor(df_sample$action_taken_name)
 summary(df_sample)
 # remove 'action_taken' for now -------------------------------------------
 
@@ -41,9 +48,11 @@ km <- kmeans(gd_kmean,2)
 df_km <- df_main
 df_km$CLUSTER <- as.factor(km$cluster)
 
-#### plot kmeans gd clusters
+#### plot kmeans gd clusters ####
 plot_listnum <- list()
+
 plot_listcat <- list()
+
 var_name <- names(df_km)
 p1 = 1
 p2 = 1
@@ -72,9 +81,17 @@ for (i in 1:(ncol(df_km)-1)){
   }
 }
 
-ggarrange(plotlist=plot_listnum)
+annotate_figure(ggarrange(plotlist=plot_listnum), 
+                text_grob("Kmeans(gd) - Numerical Data", 
+                          color = "red",
+                          face = "bold", 
+                          size = 14))
 
-ggarrange(plotlist=plot_listcat)
+annotate_figure(ggarrange(plotlist=plot_listcat), 
+                text_grob("Kmeans(gd) - Categorical Data", 
+                          color = "red",
+                          face = "bold", 
+                          size = 14))
 
 # numerical data ----------------------------------------------------------
 eu <- dist(scale(df_num_noout))
@@ -88,7 +105,7 @@ km_eu <- kmeans(eu,2)
 df_km_eu <- df_main_noout
 df_km_eu$CLUSTER <- as.factor(km_eu$cluster)
 
- #### plot kmeu clusters
+ #### plot kmeu clusters ###
 plot_listnum_eu <- list()
 plot_listcat_eu <- list()
 
@@ -119,9 +136,17 @@ for (i in 1:(ncol(df_km_eu)-1)){
   }
 }
 
-ggarrange(plotlist=plot_listnum_eu)
+annotate_figure(ggarrange(plotlist=plot_listnum_eu), 
+                text_grob("Kmeans(eu) - Categorical Data", 
+                          color = "red",
+                          face = "bold", 
+                          size = 14))
 
-ggarrange(plotlist=plot_listcat_eu)
+annotate_figure(ggarrange(plotlist=plot_listcat_eu), 
+                text_grob("Kmeans(eu) - Categorical Data", 
+                          color = "red",
+                          face = "bold", 
+                          size = 14))
 # compare with action taken -----------------------------------------------
 
 ## gd ##
