@@ -43,15 +43,3 @@ df_main$db <- db$cluster
 
 
 
-# compare with action taken -----------------------------------------------
-km5 <- kmeans(gd,2)
-kmed5 <- pam(gd,2,diss = TRUE)
-
-table(df_sample$action_taken_name,km5$cluster)
-table(df_sample$action_taken_name,kmed5$cluster)
-
-(km_eutab <- table(km_eu$cluster,df_sample$action_taken_name))
-(kmed_eutab <- table(kmed_eu$cluster,df_sample$action_taken_name))
-
-sum(diag(km_eutab))/sum(km_eutab) 
-sum(diag(kmed_eutab))/sum(kmed_eutab)
