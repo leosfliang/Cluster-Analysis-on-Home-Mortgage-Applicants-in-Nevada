@@ -43,24 +43,6 @@ df_main$db <- db$cluster
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # compare with action taken -----------------------------------------------
 km5 <- kmeans(gd,2)
 kmed5 <- pam(gd,2,diss = TRUE)
