@@ -80,12 +80,10 @@ remove <- c(
   'edit_status',
   'sequence_number',
   'application_date_indicator',
-  'property_type_name',
   'co_applicant_ethnicity_name',
   'co_applicant_race_name_1',
   'co_applicant_sex_name',
   'msamd_name',
-  'owner_occupancy_name',
   'hud_median_family_income',
   'census_tract_number',
   'county_name',
@@ -107,7 +105,7 @@ for (i in 1:ncol(df_sub)) {
 }
 
 dfColMiss <- data.frame(Variables = names(df_sub), MissingPerc = vecMissCol)
-View(dfColMiss)
+#View(dfColMiss)
 
 #variable with missing value proportion > 25%
 hi_miss_vari <- dfColMiss[which(dfColMiss$MissingPerc > 25),'Variables']
