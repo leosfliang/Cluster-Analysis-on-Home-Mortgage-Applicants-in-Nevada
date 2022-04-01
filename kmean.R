@@ -47,6 +47,7 @@ km <- kmeans(gd_kmean,2)
 
 df_km <- df_main
 df_km$CLUSTER <- as.factor(km$cluster)
+table(kmean_gd = km$cluster)
 
 #### plot kmeans gd clusters ####
 plot_listnum <- list()
@@ -104,6 +105,7 @@ km_eu <- kmeans(eu,2)
 
 df_km_eu <- df_main_noout
 df_km_eu$CLUSTER <- as.factor(km_eu$cluster)
+table(kmeans_eu = km_eu$cluster)
 
  #### plot kmeu clusters ###
 plot_listnum_eu <- list()
@@ -137,7 +139,7 @@ for (i in 1:(ncol(df_km_eu)-1)){
 }
 
 annotate_figure(ggarrange(plotlist=plot_listnum_eu), 
-                text_grob("Kmeans(eu) - Categorical Data", 
+                text_grob("Kmeans(eu) - Numerical Data", 
                           color = "red",
                           face = "bold", 
                           size = 14))
