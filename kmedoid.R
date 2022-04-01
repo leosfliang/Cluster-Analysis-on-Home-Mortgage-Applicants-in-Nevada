@@ -23,12 +23,12 @@ df_main <- df_sample[,which(names(df_sample) != 'action_taken_name')]
 df_num <- df_sample %>% select_if(is.numeric)
 
 # all variable ------------------------------------------------------------
-
+set.seed(1234)
 gd_kmed <- daisy(df_main, metric = 'gower')
 
 getOptK(dist = gd_kmed, type = 'pam')
 #sw -> k = 5
-
+set.seed(1234)
 kmed <- pam(gd_kmed,5,diss = TRUE)
 
 df_kmed <- df_main
@@ -56,7 +56,8 @@ for (i in 1:(ncol(df_kmed)-1)){
     p1 = p1 + 1
   }else{
     plot_listcat_kmed[[p2]]<- ggplot(df_kmed, aes_string( fill = current_col,x = 'CLUSTER')) +
-      geom_bar(position = "dodge")+
+      geom_bar(position = "fill") +
+      scale_y_continuous(labels = scales::percent) +
       labs(title = current_col) +
       ylab('') +
       theme(plot.title = element_text(size=8),legend.text=element_text(size=7))+ 
@@ -79,7 +80,7 @@ annotate_figure(ggarrange(plotlist=plot_listcat_kmed),
                           size = 14))
 
 # Numerical variables with eu ---------------------------------------------
-
+set.seed(1234)
 eu_kmed <- dist(scale(df_num))
 
 getOptK(dist = eu_kmed , type = 'kmean')
@@ -112,7 +113,8 @@ for (i in 1:(ncol(df_kmed_eu)-1)){
     p1 = p1 + 1
   }else{
     plot_listcat_kmed_eu[[p2]]<- ggplot(df_kmed_eu, aes_string( fill = current_col,x = 'CLUSTER')) +
-      geom_bar(position = "dodge")+
+      geom_bar(position = "fill") +
+      scale_y_continuous(labels = scales::percent) +
       labs(title = current_col) +
       ylab('') +
       theme(plot.title = element_text(size=8),legend.text=element_text(size=7))+ 

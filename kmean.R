@@ -1,6 +1,7 @@
 library(tidyverse)
 library(cluster)
 library(ggpubr)
+library(factoextra)
 
 source('function.R')
 # import cleaned data -----------------------------------------------------
@@ -41,8 +42,8 @@ getOptK(dist = gd_kmean, type = 'kmean')
 
 #swscore -> 2
 #chscore -> 3
-
-km <- kmeans(gd_kmean,2)
+set.seed(1234)
+km <- kmeans(gd_kmean,2,nstart = 25)
 
 
 df_km <- df_main
@@ -72,7 +73,8 @@ for (i in 1:(ncol(df_km)-1)){
     p1 = p1 + 1
   }else{
     plot_listcat[[p2]]<- ggplot(df_km, aes_string( fill = current_col,x = 'CLUSTER')) +
-      geom_bar(position = "dodge")+
+      geom_bar(position = "fill") +
+      scale_y_continuous(labels = scales::percent) +
       labs(title = current_col) +
       ylab('') +
       theme(plot.title = element_text(size=8),legend.text=element_text(size=7))+ 
@@ -100,8 +102,8 @@ eu <- dist(scale(df_num_noout))
 getOptK(dist = eu , type = 'kmean')
 #swscore -> 2
 #chscore -> 2
-
-km_eu <- kmeans(eu,2)
+set.seed(1234)
+km_eu <- kmeans(eu,2,nstart = 25)
 
 df_km_eu <- df_main_noout
 df_km_eu$CLUSTER <- as.factor(km_eu$cluster)
@@ -128,7 +130,8 @@ for (i in 1:(ncol(df_km_eu)-1)){
     p1_eu = p1_eu + 1
   }else{
     plot_listcat_eu[[p2_eu]]<- ggplot(df_km_eu, aes_string( fill = current_col,x = 'CLUSTER')) +
-      geom_bar(position = "dodge")+
+      geom_bar(position = "fill") +
+      scale_y_continuous(labels = scales::percent) +
       labs(title = current_col) +
       ylab('')+ 
       theme(plot.title = element_text(size=8),legend.text=element_text(size=7))+ 
@@ -149,6 +152,11 @@ annotate_figure(ggarrange(plotlist=plot_listcat_eu),
                           color = "red",
                           face = "bold", 
                           size = 14))
+# Build cluster on top of largest cluster (cluster 1)
+km_eu3 <- kmeans(eu,3)
+table(km_eu3$cluster)
+table(km_eu$cluster,km_eu3$cluster)
+
 # compare with action taken -----------------------------------------------
 
 ## gd ##
