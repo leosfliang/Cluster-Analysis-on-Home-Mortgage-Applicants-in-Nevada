@@ -40,28 +40,22 @@ print(db)
 table(db = as.factor(db$cluster), md = as.factor(ifelse(pval < alpha, 0, 1)))
 df_main$md <- as.factor(ifelse(pval < alpha, 0, 1))
 df_main$db <- db$cluster
+df_num$md <- df_main$md
+df_num$db <- df_main$db
+df_cat$md <- df_main$md
+df_cat$db <- df_main$db
 
 # Describe characteristics of outliers
 
 plot_list_num <- list()
 plot_list_cat <- list()
-j <- 0
-k <- 0
-for (i in 1:(ncol(df_main)-2)){
-  if (is.numeric(df_main[,i]))
-  {
-    j < j+1
-    plot_list_num[[j]] <- ggplot(df_main, aes_string(x = "md", 
-                                                 y = colnames(df_main)[i], 
+for (i in 1:(ncol(df_num)-2)){
+    plot_list_num[[i]] <- ggplot(df_num, aes_string(x = "md", 
+                                                 y = colnames(df_num)[i], 
                                                  color = "md")) + geom_boxplot()
-  } 
-  else
-  {
-    k <- k+1
-    plot_list[[k]]  <- ggplot(df_main, aes_string(x = "md", 
-                                                  fill = colnames(df_main)[i])) + geom_bar(stat='count')
-  }
 }
+ggpubr::ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
+
 ggpubr::ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
 
 
