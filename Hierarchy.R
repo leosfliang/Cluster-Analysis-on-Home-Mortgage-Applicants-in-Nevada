@@ -60,7 +60,7 @@ for (i in 1:(ncol(df_cat)-2)){
                                                  fill = colnames(df_cat)[i])) + geom_bar(stat='count')
 }
 
-ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 4, nrow = 3)
+ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 3)
 
 # As we can observe from the boxplots above, outliers (DB=0) have relatively lower loan amount and higher 
 # income. 
@@ -87,7 +87,7 @@ for (i in 1:length(linkages)){
   hc[[i]] <- hclust(gd_work, method = linkages[i])
 }
 
-
+#
 sw_list1 <- numeric()
 ch_list1 <- numeric()
 for (i in 2:10){
@@ -128,16 +128,13 @@ for (i in 2:10){
 sw_list4
 ch_list4
 
-# The optimal linkage: complete, k = 2
+# The optimal linkage: complete, k = 2 or ward.d2, k = 4
 
 table(cutree(hc[[2]], 2))
 df_work$hc2<-as.factor(cutree(hc[[2]], 2))
-df_work$hc3<-as.factor(cutree(hc[[2]], 3))
-table(df_work$hc2, df_work$hc3)
 
 # Characteristics of HC2 
-table(group = df_work$action_taken_name, cluster = df_work$hc2)
-table(group = df_work$action_taken_name, cluster = df_work$hc3)
+prop.table(table(group = df_work$action_taken_name, cluster = df_work$hc2),2)
 
 df_work_num <- df_work %>% select_if(is.numeric)
 df_work_cat <- df_work %>% select_if(is.factor)
@@ -151,27 +148,54 @@ for (i in 1:(ncol(df_work_num))){
 }
 ggpubr::ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
 
-for (i in 1:(ncol(df_work_cat)-2)){
+for (i in 1:(ncol(df_work_cat)-1)){
   plot_list_cat[[i]] <- ggplot(df_work_cat, aes_string(x = df_work$hc2, 
                                                   fill = colnames(df_work_cat)[i])) + geom_bar(stat='count')
 }
 
-ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 4, nrow = 3)
+ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 4)
 
-# Characteristics of HC3
+# Increasing one more cluster 
+df_work$hc3<-as.factor(cutree(hc[[2]], 3))
+table(df_work$hc2, df_work$hc3)
+
+df_work_2 <- df_work[df_work$hc2 == 1,]
+table(group = df_work_2$action_taken_name, cluster = df_work_2$hc3)
+df_work_2_num <- df_work_2 %>% select_if(is.numeric)
+df_work_2_cat <- df_work_2 %>% select_if(is.factor)
 
 plot_list_num <- list()
 plot_list_cat <- list()
-for (i in 1:(ncol(df_work_num))){
-  plot_list_num[[i]] <- ggplot(df_work_num, aes_string(x = df_work$hc3, 
-                                                       y = colnames(df_work_num)[i], 
-                                                       color = df_work$hc3)) + geom_boxplot()
+for (i in 1:(ncol(df_work_2_num))){
+  plot_list_num[[i]] <- ggplot(df_work_num, aes_string(x = df_work_2$hc3, 
+                                                       y = colnames(df_work_2_num)[i], 
+                                                       color = df_work_2$hc3)) + geom_boxplot()
 }
 ggpubr::ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
 
-for (i in 1:(ncol(df_work_cat)-2)){
-  plot_list_cat[[i]] <- ggplot(df_work_cat, aes_string(x = df_work$hc3, 
-                                                       fill = colnames(df_work_cat)[i])) + geom_bar(stat='count')
+for (i in 1:(ncol(df_work_2_cat)-2)){
+  plot_list_cat[[i]] <- ggplot(df_work_2_cat, aes_string(x = df_work_2$hc3, 
+                                                       fill = colnames(df_work_2_cat)[i])) + geom_bar(stat='count')
 }
 
-ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 4, nrow = 3)
+ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 4)
+
+library(rpart)
+tree23 <- rpart(df_work$hc3[df_work$hc2 == 1]  ~ ., data = df_work[df_work$hc2 == 1, -c(6)])
+tree23$variable.importance
+
+df_work$hc4 <- as.factor(cutree(hc[[2]], 4))
+df_work$hc5 <- as.factor(cutree(hc[[2]], 5))
+df_work$hc6 <- as.factor(cutree(hc[[2]], 6))
+
+table(df_work$hc3, df_work$hc4)
+tree34 <- rpart(df_work$hc4[df_work$hc3 == 3]  ~ ., data = df_work[df_work$hc3 == 3, c(1:5,7:17)])
+tree34$variable.importance
+
+table(df_work$hc4, df_work$hc5)
+tree45 <- rpart(df_work$hc5[df_work$hc4 == 3]  ~ ., data = df_work[df_work$hc4 == 3, c(1:5,7:17)])
+tree45$variable.importance
+
+table(df_work$hc5, df_work$hc6)
+tree56 <- rpart(df_work$hc6[df_work$hc5 == 1]  ~ ., data = df_work[df_work$hc5 == 1, c(1:5,7:17)])
+tree56$variable.importance
