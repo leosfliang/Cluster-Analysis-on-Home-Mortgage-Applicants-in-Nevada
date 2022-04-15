@@ -4,6 +4,7 @@ library(tidyverse)
 library(cluster)
 library(ggplot2)
 library(dbscan)
+library(ggpubr)
 
 # import cleaned data -----------------------------------------------------
 
@@ -59,8 +60,13 @@ for (i in 1:(ncol(df_num)-2)){
 ggpubr::ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
 
 for (i in 1:(ncol(df_cat)-2)){
-  plot_list_cat[[i]] <- ggplot(df_cat, aes_string(x = df_cat$db, 
-                                                 fill = colnames(df_cat)[i])) + geom_bar(stat='count')
+  plot_list_cat[[i]] <- ggplot(df_cat, aes_string(x = df_cat$db, fill = colnames(df_cat)[i])) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = colnames(df_cat)[i]) +
+  ylab('') +
+  theme(plot.title = element_text(size=8),legend.text=element_text(size=7)) +
+  guides(fill=guide_legend(title=""))
 }
 
 ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 3)
@@ -149,14 +155,25 @@ for (i in 1:(ncol(df_work_num))){
                                                   y = colnames(df_work_num)[i], 
                                                   color = df_work$hc2)) + geom_boxplot()
 }
-ggpubr::ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
+plot <- ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2) 
+annotate_figure(plot, top = text_grob("Hierarchical(COMPLETE, k = 2) - numerical", 
+                                      color = "red", face = "bold", size = 14))
+
+
 
 for (i in 1:(ncol(df_work_cat)-1)){
-  plot_list_cat[[i]] <- ggplot(df_work_cat, aes_string(x = df_work$hc2, 
-                                                  fill = colnames(df_work_cat)[i])) + geom_bar(stat='count')
+  plot_list_cat[[i]] <- ggplot(df_work_cat, aes_string(x = df_work$hc2, fill = colnames(df_work_cat)[i])) + 
+    geom_bar(position = "fill") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = colnames(df_work_cat)[i]) +
+    ylab('') +
+    theme(plot.title = element_text(size=8),legend.text=element_text(size=7)) +
+    guides(fill=guide_legend(title=""))
 }
 
-ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 4)
+plot <- ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 4)
+annotate_figure(plot, top = text_grob("Hierarchical(COMPLETE, k = 2) - categorical", 
+                                      color = "red", face = "bold", size = 14))
 
 # Increasing one more cluster 
 df_work$hc3<-as.factor(cutree(hc[[2]], 3))
