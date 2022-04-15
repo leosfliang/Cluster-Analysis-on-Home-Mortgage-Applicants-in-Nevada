@@ -36,6 +36,9 @@ max(gd)
 db <- dbscan(gd, eps=0.11, minPts=50)
 print(db)
 
+library(factoextra)
+fviz_cluster(db, gd, ellipse = TRUE, geom = "point")
+
 table(db = as.factor(db$cluster), md = as.factor(ifelse(pval < alpha, 0, 1)))
 df_main$md <- as.factor(ifelse(pval < alpha, 0, 1))
 df_main$db <- as.factor(db$cluster)
