@@ -38,7 +38,7 @@ df_main_noout <- df_main[which(pval >= alpha),]
 # optimal k ----------------------------------------------------------
 gd_kmean <- daisy(df_main, metric = 'gower')
 
-getOptK(dist = gd_kmean, type = 'kmean')
+getOptK(dist = gd_kmean, type = 'kmean',n = 15)
 
 #swscore -> 2
 #chscore -> 3
