@@ -5,6 +5,7 @@ library(cluster)
 library(ggplot2)
 library(dbscan)
 library(ggpubr)
+library(rpart)
 
 # import cleaned data -----------------------------------------------------
 
@@ -74,7 +75,7 @@ ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 3)
 # As we can observe from the boxplots above, outliers (DB=0) have relatively lower loan amount and higher 
 # income. 
 
-table(df_sample$action_taken_name, df_main$db) 
+table(group = df_sample$action_taken_name, dbs = df_main$db) 
 # Meanwhile the frequency table suggests that outliers are more likely to be rejected
 # applications (42/75) rather than (636/1925), which contradicts to the common sense 
 # that Higher income and lower loan, more likely the application is approved. 
@@ -175,34 +176,54 @@ plot <- ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 4)
 annotate_figure(plot, top = text_grob("Hierarchical(COMPLETE, k = 2) - categorical", 
                                       color = "red", face = "bold", size = 14))
 
+tree12 <- rpart(df_work$hc2  ~ ., data = df_work[, -c(6)])
+tree12$variable.importance
+library(rpart.plot)
+rpart.plot(tree12, yesno = TRUE)
+
+prop.table(table(df_work$action_taken_name, df_work$loan_type_name),2)
+
 # Increasing one more cluster 
 df_work$hc3<-as.factor(cutree(hc[[2]], 3))
 table(df_work$hc2, df_work$hc3)
 
 df_work_2 <- df_work[df_work$hc2 == 1,]
-table(group = df_work_2$action_taken_name, cluster = df_work_2$hc3)
+df_work_2$hc3 <- droplevels(df_work_2$hc3)
+prop.table(table(group = df_work_2$action_taken_name, cluster = df_work_2$hc3),2)
 df_work_2_num <- df_work_2 %>% select_if(is.numeric)
 df_work_2_cat <- df_work_2 %>% select_if(is.factor)
 
 plot_list_num <- list()
 plot_list_cat <- list()
 for (i in 1:(ncol(df_work_2_num))){
-  plot_list_num[[i]] <- ggplot(df_work_num, aes_string(x = df_work_2$hc3, 
+  plot_list_num[[i]] <- ggplot(df_work_2_num, aes_string(x = df_work_2$hc3, 
                                                        y = colnames(df_work_2_num)[i], 
                                                        color = df_work_2$hc3)) + geom_boxplot()
 }
-ggpubr::ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
+plot <- ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
+annotate_figure(plot, top = text_grob("Hierarchical(COMPLETE, k = 3) - numerical", 
+                                      color = "red", face = "bold", size = 14))
 
 for (i in 1:(ncol(df_work_2_cat)-2)){
-  plot_list_cat[[i]] <- ggplot(df_work_2_cat, aes_string(x = df_work_2$hc3, 
-                                                       fill = colnames(df_work_2_cat)[i])) + geom_bar(stat='count')
+  plot_list_cat[[i]] <- ggplot(df_work_2_cat, aes_string(x = df_work_2$hc3, fill = colnames(df_work_2_cat)[i])) +
+    geom_bar(position = "fill") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = colnames(df_work_cat)[i]) +
+    ylab('') +
+    theme(plot.title = element_text(size=8),legend.text=element_text(size=7)) +
+    guides(fill=guide_legend(title=""))
 }
 
-ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 4)
+plot <- ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 4)
+annotate_figure(plot, top = text_grob("Hierarchical(COMPLETE, k = 3) - categorical", 
+                                      color = "red", face = "bold", size = 14))
 
-library(rpart)
 tree23 <- rpart(df_work$hc3[df_work$hc2 == 1]  ~ ., data = df_work[df_work$hc2 == 1, -c(6)])
 tree23$variable.importance
+rpart.plot(tree23, yesno = TRUE)
+
+prop.table(table(group = df_work$action_taken_name, cluster = df_work$hc3),2)
+
 
 df_work$hc4 <- as.factor(cutree(hc[[2]], 4))
 df_work$hc5 <- as.factor(cutree(hc[[2]], 5))
