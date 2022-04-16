@@ -58,7 +58,9 @@ for (i in 1:(ncol(df_num)-2)){
                                                  y = colnames(df_num)[i], 
                                                  color = df_num$db)) + geom_boxplot()
 }
-ggpubr::ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
+plot <- ggarrange(plotlist = plot_list_num, ncol = 4, nrow = 2)
+annotate_figure(plot, top = text_grob("DBSCAN - numerical", 
+                                      color = "red", face = "bold", size = 14))
 
 for (i in 1:(ncol(df_cat)-2)){
   plot_list_cat[[i]] <- ggplot(df_cat, aes_string(x = df_cat$db, fill = colnames(df_cat)[i])) +
@@ -70,8 +72,9 @@ for (i in 1:(ncol(df_cat)-2)){
   guides(fill=guide_legend(title=""))
 }
 
-ggpubr::ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 3)
-
+plot <- ggarrange(plotlist = plot_list_cat, ncol = 3, nrow = 3)
+annotate_figure(plot, top = text_grob("DBSCAN - categorical", 
+                                      color = "red", face = "bold", size = 14))
 # As we can observe from the boxplots above, outliers (DB=0) have relatively lower loan amount and higher 
 # income. 
 
